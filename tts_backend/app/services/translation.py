@@ -14,11 +14,13 @@ class TranslationError(Exception):
 # ── DeepL ────────────────────────────────────────────────────────────────────
 
 DEEPL_LANGUAGE_MAP = {
-    "en": "EN-US", "fr": "FR", "es": "ES", "de": "DE",
-    "it": "IT", "pt": "PT-PT", "nl": "NL", "pl": "PL",
-    "ru": "RU", "ja": "JA", "zh": "ZH", "ar": "AR",
-    "ko": "KO", "sv": "SV", "da": "DA", "fi": "FI",
-    "nb": "NB", "tr": "TR", "cs": "CS", "ro": "RO",
+    "cs": "CS", "da": "DA", "de": "DE",  "es": "ES",
+    "gr": "EL", "hu": "HU", "hr": "HR",  "ru": "RU",
+    "ro": "RO", "nl": "NL", "no": "NB",  "fi": "FI",
+    "fr": "FR", "sv": "SV", "pl": "PL",  "pt": "PT-PT",
+    "it": "IT",
+    # kept for backwards compat
+    "en": "EN-US", "ja": "JA", "zh": "ZH", "ko": "KO",
 }
 
 
@@ -61,6 +63,32 @@ async def _translate_google(text: str, target_lang: str) -> str:
         return data["data"]["translations"][0]["translatedText"]
 
 
+# ── MyMemory (free, no API key) ─────────────────────────────────────────────
+
+MYMEMORY_LANG_MAP = {
+    "gr": "el",    # Greek: ISO 639-1 is 'el'
+    "zh": "zh-CN", # Chinese simplified
+    "nb": "no",    # Norwegian Bokmål
+}
+
+
+async def _translate_mymemory(text: str, target_lang: str) -> str:
+    """Free translation via MyMemory API — 5 000 chars/day, no key required."""
+    lang_code = MYMEMORY_LANG_MAP.get(target_lang.lower(), target_lang.lower())
+    async with httpx.AsyncClient(timeout=20) as client:
+        resp = await client.get(
+            "https://api.mymemory.translated.net/get",
+            params={"q": text, "langpair": f"en|{lang_code}"},
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        result: str = data["responseData"]["translatedText"]
+        # MyMemory returns the original when quota is hit — detect gracefully
+        if data.get("responseStatus") != 200:
+            raise TranslationError(f"MyMemory error: {data.get('responseDetails', '')}")
+        return result
+
+
 # ── Public interface ──────────────────────────────────────────────────────────
 
 async def translate_to_all(text: str, languages: List[str]) -> Dict[str, str]:
@@ -77,6 +105,12 @@ async def translate_to_all(text: str, languages: List[str]) -> Dict[str, str]:
                 translated = await _translate_deepl(text, lang)
             elif provider == "google":
                 translated = await _translate_google(text, lang)
+            elif provider == "mymemory":
+                # For English source, return as-is; translate everything else
+                if lang.lower() == "en":
+                    translated = text
+                else:
+                    translated = await _translate_mymemory(text, lang)
             elif provider == "passthrough":
                 translated = await _passthrough(text, lang)
             else:

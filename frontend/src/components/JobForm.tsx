@@ -3,25 +3,23 @@ import type { Voice } from '../types'
 import { getVoices, createJob } from '../api/client'
 
 const LANGUAGES = [
-  { code: 'en', name: 'English',    flag: '🇺🇸' },
-  { code: 'fr', name: 'French',     flag: '🇫🇷' },
-  { code: 'es', name: 'Spanish',    flag: '🇪🇸' },
-  { code: 'de', name: 'German',     flag: '🇩🇪' },
-  { code: 'it', name: 'Italian',    flag: '🇮🇹' },
-  { code: 'pt', name: 'Portuguese', flag: '🇵🇹' },
-  { code: 'nl', name: 'Dutch',      flag: '🇳🇱' },
-  { code: 'pl', name: 'Polish',     flag: '🇵🇱' },
-  { code: 'ru', name: 'Russian',    flag: '🇷🇺' },
-  { code: 'ja', name: 'Japanese',   flag: '🇯🇵' },
-  { code: 'zh', name: 'Chinese',    flag: '🇨🇳' },
-  { code: 'ar', name: 'Arabic',     flag: '🇸🇦' },
-  { code: 'ko', name: 'Korean',     flag: '🇰🇷' },
-  { code: 'sv', name: 'Swedish',    flag: '🇸🇪' },
-  { code: 'da', name: 'Danish',     flag: '🇩🇰' },
-  { code: 'fi', name: 'Finnish',    flag: '🇫🇮' },
-  { code: 'tr', name: 'Turkish',    flag: '🇹🇷' },
   { code: 'cs', name: 'Czech',      flag: '🇨🇿' },
+  { code: 'da', name: 'Danish',     flag: '🇩🇰' },
+  { code: 'de', name: 'German',     flag: '🇩🇪' },
+  { code: 'es', name: 'Spanish',    flag: '🇪🇸' },
+  { code: 'gr', name: 'Greek',      flag: '🇬🇷' },
+  { code: 'hu', name: 'Hungarian',  flag: '🇭🇺' },
+  { code: 'hr', name: 'Croatian',   flag: '🇭🇷' },
+  { code: 'ru', name: 'Russian',    flag: '🇷🇺' },
   { code: 'ro', name: 'Romanian',   flag: '🇷🇴' },
+  { code: 'nl', name: 'Dutch',      flag: '🇳🇱' },
+  { code: 'no', name: 'Norwegian',  flag: '🇳🇴' },
+  { code: 'fi', name: 'Finnish',    flag: '🇫🇮' },
+  { code: 'fr', name: 'French',     flag: '🇫🇷' },
+  { code: 'sv', name: 'Swedish',    flag: '🇸🇪' },
+  { code: 'pl', name: 'Polish',     flag: '🇵🇱' },
+  { code: 'pt', name: 'Portuguese', flag: '🇵🇹' },
+  { code: 'it', name: 'Italian',    flag: '🇮🇹' },
 ]
 
 const AUDIO_FORMATS = [
@@ -38,7 +36,7 @@ interface Props {
 export default function JobForm({ onJobCreated }: Props) {
   const [text, setText]               = useState('')
   const [voiceId, setVoiceId]         = useState('21m00Tcm4TlvDq8ikWAM')
-  const [selectedLangs, setSelected]  = useState<string[]>(['en'])
+  const [selectedLangs, setSelected]  = useState<string[]>(['fr'])
   const [audioFormat, setFormat]      = useState('mp3_44100_128')
   const [voices, setVoices]           = useState<Voice[]>([])
   const [voicesLoading, setVLoading]  = useState(true)

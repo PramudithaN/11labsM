@@ -19,11 +19,17 @@ const AUDIO_META: Record<AudioStatus, { label: string; color: string }> = {
 }
 
 const LANG_NAMES: Record<string, string> = {
-  en: 'English',    fr: 'French',   es: 'Spanish',  de: 'German',
-  it: 'Italian',    pt: 'Portuguese', nl: 'Dutch',   pl: 'Polish',
-  ru: 'Russian',    ja: 'Japanese', zh: 'Chinese',  ar: 'Arabic',
-  ko: 'Korean',     sv: 'Swedish',  da: 'Danish',   fi: 'Finnish',
-  tr: 'Turkish',    cs: 'Czech',    ro: 'Romanian', nb: 'Norwegian',
+  cs: 'Czech',      da: 'Danish',     de: 'German',    es: 'Spanish',
+  gr: 'Greek',      hu: 'Hungarian',  hr: 'Croatian',  ru: 'Russian',
+  ro: 'Romanian',   nl: 'Dutch',      no: 'Norwegian', fi: 'Finnish',
+  fr: 'French',     sv: 'Swedish',    pl: 'Polish',    pt: 'Portuguese',
+  it: 'Italian',
+}
+
+const LANG_FLAGS: Record<string, string> = {
+  cs: '🇨🇿', da: '🇩🇰', de: '🇩🇪', es: '🇪🇸', gr: '🇬🇷', hu: '🇭🇺',
+  hr: '🇭🇷', ru: '🇷🇺', ro: '🇷🇴', nl: '🇳🇱', no: '🇳🇴', fi: '🇫🇮',
+  fr: '🇫🇷', sv: '🇸🇪', pl: '🇵🇱', pt: '🇵🇹', it: '🇮🇹',
 }
 
 const DONE_STATUSES: JobStatus[] = ['ready', 'partial', 'failed']
@@ -95,6 +101,7 @@ export default function JobStatus({ jobId }: Props) {
             return (
               <div key={af.id} className="audio-row">
                 <span className="lang-name">
+                  {LANG_FLAGS[af.language] ?? '🌐'}&nbsp;
                   {LANG_NAMES[af.language] ?? af.language.toUpperCase()}
                 </span>
                 <span className="audio-status" style={{ color: am.color }}>
