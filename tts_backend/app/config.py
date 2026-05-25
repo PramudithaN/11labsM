@@ -17,14 +17,6 @@ class Settings(BaseSettings):
     # Redis
     redis_url: str = "redis://localhost:6379/0"
 
-    # S3 / MinIO
-    s3_endpoint_url: str = ""  # blank = AWS; set to http://minio:9000 for Docker MinIO
-    s3_public_endpoint_url: str = ""  # public URL for presigned URLs (e.g. http://localhost:9000)
-    s3_access_key: str = ""
-    s3_secret_key: str = ""
-    s3_bucket: str = "tts-audio"
-    s3_region: str = "us-east-1"
-
     # App
     app_env: str = "production"
     secret_key: str = "changeme"

@@ -9,7 +9,7 @@ from fastapi.responses import StreamingResponse
 from app.models.schemas import (
     CreateJobRequest, CreateJobResponse, JobResponse, AudioFileResponse
 )
-from app.storage.s3 import download_audio
+from app.storage.audio_store import download_audio
 from app.workers.tts_tasks import generate_language_audio
 from app.utils.redis_store import create_job, get_job
 

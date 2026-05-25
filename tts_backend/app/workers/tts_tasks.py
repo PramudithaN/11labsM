@@ -3,7 +3,7 @@ import logging
 from app.workers.celery_app import celery_app
 from app.services.tts import generate_audio_sync, TTSError
 from app.services.translation import translate_sync, TranslationError
-from app.storage.s3 import upload_audio
+from app.storage.audio_store import upload_audio
 from app.utils.cache import get_cached_key, set_cached_key
 from app.utils.redis_store import sync_update_audio_file, sync_maybe_complete_job
 

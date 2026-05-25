@@ -16,12 +16,6 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Starting TTS backend (env=%s)", settings.app_env)
-    # Only auto-create bucket for local MinIO — requires a custom endpoint to be configured
-    if settings.app_env == "development" and settings.s3_endpoint_url:
-        from app.storage.s3 import ensure_bucket_exists
-        ensure_bucket_exists()  # auto-create MinIO bucket in local dev only
-    yield
-    logger.info("Shutting down TTS backend")
     yield
     logger.info("Shutting down TTS backend")
 
