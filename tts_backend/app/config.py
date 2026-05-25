@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings
+from pydantic import field_validator
 from functools import lru_cache
 
 
@@ -15,6 +16,16 @@ class Settings(BaseSettings):
 
     # Database
     database_url: str = "postgresql+asyncpg://user:password@localhost:5432/tts_db"
+
+    @field_validator("database_url", mode="before")
+    @classmethod
+    def _normalise_db_url(cls, v: str) -> str:
+        """Render / Heroku supply postgres:// or postgresql:// — add the asyncpg dialect."""
+        if v.startswith("postgres://"):
+            return "postgresql+asyncpg://" + v[len("postgres://"):]
+        if v.startswith("postgresql://"):
+            return "postgresql+asyncpg://" + v[len("postgresql://"):]
+        return v
 
     # Redis
     redis_url: str = "redis://localhost:6379/0"
@@ -37,6 +48,7 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
+        extra = "ignore"  # silently ignore unknown env vars (e.g. VITE_* frontend vars)
 
 
 @lru_cache()

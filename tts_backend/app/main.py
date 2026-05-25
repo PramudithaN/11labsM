@@ -18,9 +18,9 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Starting TTS backend (env=%s)", settings.app_env)
+    await init_db()           # create tables if they don't exist (idempotent)
     if settings.app_env == "development":
-        await init_db()        # auto-create tables in dev; use Alembic in production
-        ensure_bucket_exists() # create S3/MinIO bucket if missing
+        ensure_bucket_exists()  # auto-create MinIO bucket in local dev only
     yield
     logger.info("Shutting down TTS backend")
 
