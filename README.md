@@ -1,4 +1,4 @@
-# 11LabsM — Neural Voice Synthesizer & Translator
+# 11LabsM - Neural Voice Synthesizer & Translator
 
 A full-stack web application that translates text into multiple languages simultaneously and generates high-quality text-to-speech audio for each using the [ElevenLabs](https://elevenlabs.io/) API. Jobs are processed asynchronously in the background; the UI polls for progress and lets users play previews or download a ZIP of all generated audio files.
 
@@ -42,12 +42,12 @@ A full-stack web application that translates text into multiple languages simult
 │              Vercel (Frontend)           │
 │  React + TypeScript + Ant Design + Vite  │
 │                                          │
-│  ┌──────────┐     ┌─────────────────┐   │
-│  │ JobForm  │────▶│   API Client    │   │
-│  └──────────┘     │  /api/* proxy   │   │
-│  ┌──────────┐◀────│  (Vercel rewrite│   │
-│  │JobStatus │     │   → Render.com) │   │
-│  └──────────┘     └─────────────────┘   │
+│  ┌──────────┐     ┌─────────────────┐    │
+│  │ JobForm  │───▶│   API Client     │   │
+│  └──────────┘     │  /api/* proxy    │   │
+│  ┌──────────┐◀───│   (Vercel rewrite│   │
+│  │JobStatus │     │   → Render.com)  │   │
+│  └──────────┘     └───────────────── ┘   │
 └─────────────────────────┬────────────────┘
                           │ HTTP
 ┌─────────────────────────▼────────────────┐
