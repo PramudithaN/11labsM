@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     s3_region: str = "us-east-1"
 
     # App
-    app_env: str = "development"
+    app_env: str = "production"
     secret_key: str = "changeme"
     max_text_length: int = 5000
     max_languages_per_job: int = 20
