@@ -2,7 +2,7 @@ import logging
 
 from app.workers.celery_app import celery_app
 from app.services.tts import generate_audio_sync, TTSError
-from app.services.translation import translate_to_all, TranslationError
+from app.services.translation import translate_sync, TranslationError
 from app.storage.s3 import upload_audio
 from app.utils.cache import get_cached_key, set_cached_key
 from app.utils.redis_store import sync_update_audio_file, sync_maybe_complete_job
@@ -30,19 +30,14 @@ def generate_language_audio(
     try:
         sync_update_audio_file(audio_file_id, status="generating")
 
-        # Translate source text for this language
-        if language.lower() == "en":
-            translated_text = source_text
-        else:
-            try:
-                translated_text = asyncio.run(
-                    translate_to_all(source_text, [language])
-                )[language]
-            except (TranslationError, Exception) as exc:
-                logger.warning("Translation failed for lang=%s: %s", language, exc)
-                sync_update_audio_file(audio_file_id, status="failed", error_message=f"Translation error: {exc}"[:500])
-                sync_maybe_complete_job(job_id)
-                return
+        # Translate source text — sync call, no event loop overhead
+        try:
+            translated_text = translate_sync(source_text, language)
+        except (TranslationError, Exception) as exc:
+            logger.warning("Translation failed for lang=%s: %s", language, exc)
+            sync_update_audio_file(audio_file_id, status="failed", error_message=f"Translation error: {exc}"[:500])
+            sync_maybe_complete_job(job_id)
+            return
 
         # Cache check — skip ElevenLabs call if already generated
         cached_key = get_cached_key(translated_text, language, voice_id, audio_format)

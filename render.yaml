@@ -47,7 +47,7 @@ services:
     dockerfilePath: tts_backend/Dockerfile
     dockerContext: tts_backend
     plan: free
-    startCommand: celery -A app.workers.celery_app worker --loglevel=info --concurrency=2
+    startCommand: celery -A app.workers.celery_app worker --loglevel=info --concurrency=4
     envVars:
       - key: REDIS_URL
         fromService:

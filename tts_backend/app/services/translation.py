@@ -73,20 +73,71 @@ MYMEMORY_LANG_MAP = {
 
 
 async def _translate_mymemory(text: str, target_lang: str) -> str:
-    """Free translation via MyMemory API — 5 000 chars/day, no key required."""
+    """Free translation via MyMemory API."""
     lang_code = MYMEMORY_LANG_MAP.get(target_lang.lower(), target_lang.lower())
-    async with httpx.AsyncClient(timeout=20) as client:
+    async with httpx.AsyncClient(timeout=8) as client:
         resp = await client.get(
             "https://api.mymemory.translated.net/get",
             params={"q": text, "langpair": f"en|{lang_code}"},
         )
         resp.raise_for_status()
         data = resp.json()
-        result: str = data["responseData"]["translatedText"]
-        # MyMemory returns the original when quota is hit — detect gracefully
         if data.get("responseStatus") != 200:
             raise TranslationError(f"MyMemory error: {data.get('responseDetails', '')}")
-        return result
+        return data["responseData"]["translatedText"]
+
+
+def translate_sync(text: str, language: str) -> str:
+    """Synchronous translation for Celery workers — no event loop overhead."""
+    if language.lower() == "en":
+        return text
+
+    provider = settings.translation_provider.lower()
+
+    if provider == "mymemory" or provider == "passthrough":
+        if provider == "passthrough":
+            return text
+        lang_code = MYMEMORY_LANG_MAP.get(language.lower(), language.lower())
+        import httpx as _httpx
+        with _httpx.Client(timeout=8) as client:
+            resp = client.get(
+                "https://api.mymemory.translated.net/get",
+                params={"q": text, "langpair": f"en|{lang_code}"},
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            if data.get("responseStatus") != 200:
+                raise TranslationError(f"MyMemory error: {data.get('responseDetails', '')}")
+            return data["responseData"]["translatedText"]
+
+    elif provider == "deepl":
+        if not settings.deepl_api_key:
+            raise TranslationError("DEEPL_API_KEY is not configured")
+        deepl_lang = DEEPL_LANGUAGE_MAP.get(language.lower(), language.upper())
+        import httpx as _httpx
+        with _httpx.Client(timeout=8) as client:
+            resp = client.post(
+                "https://api-free.deepl.com/v2/translate",
+                headers={"Authorization": f"DeepL-Auth-Key {settings.deepl_api_key}"},
+                json={"text": [text], "target_lang": deepl_lang},
+            )
+            resp.raise_for_status()
+            return resp.json()["translations"][0]["text"]
+
+    elif provider == "google":
+        if not settings.google_translate_api_key:
+            raise TranslationError("GOOGLE_TRANSLATE_API_KEY is not configured")
+        import httpx as _httpx
+        with _httpx.Client(timeout=8) as client:
+            resp = client.post(
+                "https://translation.googleapis.com/language/translate/v2",
+                params={"key": settings.google_translate_api_key},
+                json={"q": text, "target": language, "format": "text"},
+            )
+            resp.raise_for_status()
+            return resp.json()["data"]["translations"][0]["translatedText"]
+
+    raise TranslationError(f"Unknown translation provider: {provider}")
 
 
 # ── Public interface ──────────────────────────────────────────────────────────
