@@ -27,6 +27,11 @@ alembic/versions/*.pyc
 # Docker
 *.log
 
+# Celery runtime artifacts
+celerybeat-schedule
+celerybeat-schedule.db
+celerybeat.pid
+
 # OS
 .DS_Store
 Thumbs.db
