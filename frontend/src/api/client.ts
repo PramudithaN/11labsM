@@ -29,5 +29,5 @@ export const getJob = (jobId: string): Promise<Job> =>
 export const getDownloadUrl = (jobId: string): string =>
   `${BASE}/jobs/${jobId}/download`
 
-export const getAudioUrl = (jobId: string, language: string): Promise<{ url: string }> =>
-  request(`/jobs/${jobId}/files/${language}/url`)
+export const getAudioStreamUrl = (jobId: string, language: string): string =>
+  `${BASE}/jobs/${jobId}/files/${language}/stream`

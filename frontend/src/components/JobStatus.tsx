@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import type { Job, JobStatus, AudioStatus } from '../types'
-import { getJob, getDownloadUrl, getAudioUrl } from '../api/client'
+import { getJob, getDownloadUrl, getAudioStreamUrl } from '../api/client'
 
 const JOB_META: Record<JobStatus, { label: string; color: string; spin?: boolean }> = {
   pending:     { label: 'Pending',     color: '#94a3b8' },
@@ -42,7 +42,6 @@ export default function JobStatus({ jobId }: Props) {
   const timerRef                = useRef<ReturnType<typeof setInterval> | null>(null)
   const audioRef                = useRef<HTMLAudioElement | null>(null)
   const [playingLang, setPlaying] = useState<string | null>(null)
-  const [loadingLang, setLoading] = useState<string | null>(null)
 
   const playPreview = async (language: string) => {
     if (playingLang === language) {
@@ -50,21 +49,17 @@ export default function JobStatus({ jobId }: Props) {
       setPlaying(null)
       return
     }
-    setLoading(language)
+    if (!audioRef.current) audioRef.current = new Audio()
+    const audio = audioRef.current
+    audio.pause()
+    audio.src = getAudioStreamUrl(jobId, language)
+    audio.onended = () => setPlaying(null)
+    audio.onerror = () => setPlaying(null)
     try {
-      const { url } = await getAudioUrl(jobId, language)
-      if (!audioRef.current) audioRef.current = new Audio()
-      const audio = audioRef.current
-      audio.pause()
-      audio.src = url
-      audio.onended = () => setPlaying(null)
-      audio.onerror = () => setPlaying(null)
       await audio.play()
       setPlaying(language)
     } catch {
       setPlaying(null)
-    } finally {
-      setLoading(null)
     }
   }
 
@@ -138,14 +133,9 @@ export default function JobStatus({ jobId }: Props) {
                   <button
                     type="button"
                     className="btn-preview"
-                    disabled={loadingLang === af.language}
                     onClick={() => playPreview(af.language)}
                   >
-                    {loadingLang === af.language
-                      ? '…'
-                      : playingLang === af.language
-                      ? '■ Stop'
-                      : '▶ Preview'}
+                    {playingLang === af.language ? '■ Stop' : '▶ Preview'}
                   </button>
                 )}
                 {af.error_message && (

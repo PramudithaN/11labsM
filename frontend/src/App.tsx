@@ -13,8 +13,8 @@ export default function App() {
     <div className="app">
       <header className="header">
         <div className="header-inner">
-          <h1>🔊 Multilingual TTS</h1>
-          <p>Translate &amp; synthesise speech in 19 languages via ElevenLabs</p>
+          <h1>🔊 11LabsM</h1>
+          <p>Translate &amp; synthesise speech in 17 languages via ElevenLabs</p>
         </div>
       </header>
 

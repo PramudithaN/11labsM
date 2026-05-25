@@ -48,13 +48,19 @@ def upload_audio(job_id: str, language: str, voice_id: str, audio_bytes: bytes, 
 
 
 def generate_presigned_url(key: str, expires_in: int = 3600) -> str:
-    """Generate a pre-signed download URL (default 1 hour)."""
+    """Generate a pre-signed download URL (default 1 hour).
+    If S3_PUBLIC_ENDPOINT_URL is set, the internal Docker hostname in the URL
+    is replaced with the public hostname so browsers can reach it.
+    """
     client = _get_client()
-    return client.generate_presigned_url(
+    url = client.generate_presigned_url(
         "get_object",
         Params={"Bucket": settings.s3_bucket, "Key": key},
         ExpiresIn=expires_in,
     )
+    if settings.s3_public_endpoint_url and settings.s3_endpoint_url:
+        url = url.replace(settings.s3_endpoint_url, settings.s3_public_endpoint_url, 1)
+    return url
 
 
 def download_audio(key: str) -> bytes:

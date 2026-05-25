@@ -129,11 +129,11 @@ async def download_job(job_id: UUID, db: AsyncSession = Depends(get_db)):
     )
 
 
-# ── GET /jobs/{id}/files/{language}/url ───────────────────────────────────────
+# ── GET /jobs/{id}/files/{language}/stream ────────────────────────────────────
 
-@router.get("/{job_id}/files/{language}/url")
-async def get_audio_url(job_id: UUID, language: str, db: AsyncSession = Depends(get_db)):
-    """Return a pre-signed download URL for a single language audio file."""
+@router.get("/{job_id}/files/{language}/stream")
+async def stream_audio_file(job_id: UUID, language: str, db: AsyncSession = Depends(get_db)):
+    """Stream a single completed audio file directly to the browser."""
     result = await db.execute(
         select(AudioFile).where(
             AudioFile.job_id == job_id,
@@ -144,5 +144,18 @@ async def get_audio_url(job_id: UUID, language: str, db: AsyncSession = Depends(
     af = result.scalar_one_or_none()
     if not af:
         raise HTTPException(status_code=404, detail="Audio file not found or not ready")
-    url = generate_presigned_url(af.file_url)
-    return {"language": language, "url": url, "expires_in": 3600}
+
+    try:
+        audio_bytes = download_audio(af.file_url)
+    except Exception as exc:
+        logger.error("Failed to fetch audio for streaming: %s", exc)
+        raise HTTPException(status_code=502, detail="Could not retrieve audio file")
+
+    ext = af.file_url.rsplit(".", 1)[-1] if "." in af.file_url else "mp3"
+    media_type = "audio/mpeg" if ext == "mp3" else f"audio/{ext}"
+
+    return StreamingResponse(
+        iter([audio_bytes]),
+        media_type=media_type,
+        headers={"Content-Disposition": f'inline; filename="{language}.{ext}"'},
+    )
