@@ -26,7 +26,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Multilingual TTS Platform",
+    title="11LabsM_Translater",
     description="Translate text and generate speech in multiple languages via ElevenLabs.",
     version="1.0.0",
     lifespan=lifespan,

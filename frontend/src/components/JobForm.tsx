@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react'
+import { Card, Button, Select, Input, Space, Alert } from 'antd'
+import { SoundOutlined, ThunderboltOutlined } from '@ant-design/icons'
 import type { Voice } from '../types'
 import { getVoices, createJob } from '../api/client'
+
+const { TextArea } = Input
 
 const LANGUAGES = [
   { code: 'cs', name: 'Czech',      flag: '🇨🇿' },
@@ -34,146 +38,136 @@ interface Props {
 }
 
 export default function JobForm({ onJobCreated }: Props) {
-  const [text, setText]               = useState('')
-  const [voiceId, setVoiceId]         = useState('21m00Tcm4TlvDq8ikWAM')
-  const [selectedLangs, setSelected]  = useState<string[]>(['fr'])
-  const [audioFormat, setFormat]      = useState('mp3_44100_128')
-  const [voices, setVoices]           = useState<Voice[]>([])
-  const [voicesLoading, setVLoading]  = useState(true)
-  const [submitting, setSubmitting]   = useState(false)
-  const [error, setError]             = useState<string | null>(null)
+  const [text, setText]      = useState('')
+  const [voiceId, setVoiceId]   = useState('21m00Tcm4TlvDq8ikWAM')
+  const [selected, setSelected] = useState<string[]>(['fr'])
+  const [format, setFormat]     = useState('mp3_44100_128')
+  const [voices, setVoices]     = useState<Voice[]>([])
+  const [loading, setLoading]   = useState(true)
+  const [submitting, setSub]    = useState(false)
+  const [error, setError]       = useState<string | null>(null)
 
   useEffect(() => {
     getVoices()
-      .then(v => {
-        setVoices(v)
-        if (v.length > 0) setVoiceId(v[0].voice_id)
-      })
-      .catch(() => { /* voices API may return 401 on free plan; manual ID fallback */ })
-      .finally(() => setVLoading(false))
+      .then(v => { setVoices(v); if (v.length) setVoiceId(v[0].voice_id) })
+      .catch(() => {})
+      .finally(() => setLoading(false))
   }, [])
 
   const toggle = (code: string) =>
-    setSelected(prev =>
-      prev.includes(code) ? prev.filter(l => l !== code) : [...prev, code]
-    )
+    setSelected(p => p.includes(code) ? p.filter(l => l !== code) : [...p, code])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!text.trim() || selectedLangs.length === 0) return
-    setSubmitting(true)
-    setError(null)
+  const toggleAll = () =>
+    setSelected(selected.length === LANGUAGES.length ? [] : LANGUAGES.map(l => l.code))
+
+  const handleSubmit = async () => {
+    if (!text.trim() || selected.length === 0) return
+    setSub(true); setError(null)
     try {
-      const res = await createJob({
-        text,
-        languages: selectedLangs,
-        voice_id: voiceId,
-        audio_format: audioFormat,
-      })
+      const res = await createJob({ text, languages: selected, voice_id: voiceId, audio_format: format })
       onJobCreated(res.job_id)
       setText('')
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create job')
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to create job')
     } finally {
-      setSubmitting(false)
+      setSub(false)
     }
   }
 
   return (
-    <form className="card" onSubmit={handleSubmit}>
-      <h2>Generate Audio</h2>
+    <Card
+      title={<Space size={8}><SoundOutlined style={{ color: '#6366f1' }} /><span>Generate Audio</span></Space>}
+      bordered={false}
+      style={{ boxShadow: '0 1px 3px rgba(0,0,0,.08)' }}
+    >
+      <Space direction="vertical" size={18} style={{ width: '100%' }}>
 
-      {/* ── Text ──────────────────────────────────────────── */}
-      <div className="field">
-        <span>Source Text</span>
-        <textarea
-          value={text}
-          onChange={e => setText(e.target.value)}
-          placeholder="Enter the text you want to convert to speech…"
-          maxLength={5000}
-          rows={5}
-          required
-        />
-        <span className="char-count">{text.length} / 5000</span>
-      </div>
+        {/* Source text */}
+        <div>
+          <label className="field-label">Source Text</label>
+          <TextArea
+            value={text}
+            onChange={e => setText(e.target.value)}
+            placeholder="Enter text to synthesize…"
+            maxLength={5000}
+            rows={4}
+            showCount
+          />
+        </div>
 
-      {/* ── Voice + Format ────────────────────────────────── */}
-      <div className="row">
-        <div className="field">
-          <span>Voice</span>
-          {voices.length > 0 ? (
-            <select value={voiceId} onChange={e => setVoiceId(e.target.value)}>
-              {voices.map(v => (
-                <option key={v.voice_id} value={v.voice_id}>{v.name}</option>
-              ))}
-            </select>
-          ) : (
-            <input
-              type="text"
+        {/* Voice + Format */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div style={{ minWidth: 0 }}>
+            <label className="field-label">Voice</label>
+            <Select
               value={voiceId}
-              onChange={e => setVoiceId(e.target.value)}
-              placeholder="Voice ID"
-              disabled={voicesLoading}
+              onChange={setVoiceId}
+              loading={loading}
+              style={{ width: '100%' }}
+              options={voices.length
+                ? voices.map(v => ({ value: v.voice_id, label: v.name }))
+                : [{ value: voiceId, label: voiceId }]
+              }
             />
-          )}
+          </div>
+          <div style={{ minWidth: 0 }}>
+            <label className="field-label">Audio Format</label>
+            <Select
+              value={format}
+              onChange={setFormat}
+              style={{ width: '100%' }}
+              options={AUDIO_FORMATS.map(f => ({ value: f.value, label: f.label }))}
+            />
+          </div>
         </div>
 
-        <div className="field">
-          <span>Audio Format</span>
-          <select value={audioFormat} onChange={e => setFormat(e.target.value)}>
-            {AUDIO_FORMATS.map(f => (
-              <option key={f.value} value={f.value}>{f.label}</option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      {/* ── Languages ─────────────────────────────────────── */}
-      <fieldset className="field">
-        <legend>
-          Target Languages&nbsp;
-          <span className="badge">{selectedLangs.length} selected</span>
-          <button
-            type="button"
-            className="btn-select-all"
-            onClick={() =>
-              setSelected(
-                selectedLangs.length === LANGUAGES.length
-                  ? []
-                  : LANGUAGES.map(l => l.code)
-              )
-            }
-          >
-            {selectedLangs.length === LANGUAGES.length ? 'Deselect All' : 'Select All'}
-          </button>
-        </legend>
-        <div className="lang-grid">
-          {LANGUAGES.map(lang => (
-            <label
-              key={lang.code}
-              className={`lang-chip${selectedLangs.includes(lang.code) ? ' selected' : ''}`}
+        {/* Languages */}
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
+            <label className="field-label" style={{ marginBottom: 0 }}>Target Languages</label>
+            <span style={{
+              background: '#0f172a', color: '#fff',
+              borderRadius: 99, padding: '1px 9px',
+              fontSize: '.7rem', fontWeight: 700,
+            }}>{selected.length}</span>
+            <Button
+              size="small"
+              onClick={toggleAll}
+              style={{ marginLeft: 'auto', fontSize: '.75rem', height: 24, padding: '0 10px' }}
             >
-              <input
-                type="checkbox"
-                checked={selectedLangs.includes(lang.code)}
-                onChange={() => toggle(lang.code)}
-              />
-              <span>{lang.flag}</span>
-              <span>{lang.name}</span>
-            </label>
-          ))}
+              {selected.length === LANGUAGES.length ? 'Deselect All' : 'Select All'}
+            </Button>
+          </div>
+          <div className="lang-grid">
+            {LANGUAGES.map(lang => (
+              <div
+                key={lang.code}
+                className={`lang-chip${selected.includes(lang.code) ? ' selected' : ''}`}
+                onClick={() => toggle(lang.code)}
+              >
+                <span>{lang.flag}</span>
+                <span>{lang.name}</span>
+              </div>
+            ))}
+          </div>
         </div>
-      </fieldset>
 
-      {error && <p className="error-msg">{error}</p>}
+        {error && <Alert type="error" message={error} showIcon closable onClose={() => setError(null)} />}
 
-      <button
-        type="submit"
-        className="btn-primary"
-        disabled={submitting || !text.trim() || selectedLangs.length === 0}
-      >
-        {submitting ? 'Creating job…' : '▶  Generate Audio'}
-      </button>
-    </form>
+        <Button
+          type="primary"
+          icon={<ThunderboltOutlined />}
+          size="large"
+          block
+          loading={submitting}
+          disabled={!text.trim() || selected.length === 0}
+          onClick={handleSubmit}
+          style={{ background: '#0f172a', borderColor: '#0f172a', color: '#fff', height: 44, fontWeight: 600 }}
+        >
+          {submitting ? 'Creating job…' : 'Generate Audio'}
+        </Button>
+
+      </Space>
+    </Card>
   )
 }

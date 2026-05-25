@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Quick smoke-test for the Multilingual TTS Platform
+# Quick smoke-test for the 11LabsM_Translater
 # Usage: bash test_api.sh
 # Requires: curl, python3
 
