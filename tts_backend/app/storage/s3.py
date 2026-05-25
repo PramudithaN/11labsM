@@ -1,3 +1,4 @@
+import base64
 import boto3
 from botocore.exceptions import ClientError
 from botocore.config import Config
@@ -7,6 +8,13 @@ from app.config import get_settings
 
 settings = get_settings()
 logger = logging.getLogger(__name__)
+
+REDIS_AUDIO_PREFIX = "audio_data:"
+REDIS_AUDIO_TTL = 86_400  # 24 hours
+
+
+def _s3_configured() -> bool:
+    return bool(settings.s3_access_key and settings.s3_secret_key)
 
 
 def _get_client():
@@ -24,14 +32,22 @@ def _get_client():
 
 def upload_audio(job_id: str, language: str, voice_id: str, audio_bytes: bytes, audio_format: str = "mp3_44100_128") -> str:
     """
-    Upload audio bytes to S3/MinIO.
-    Returns the S3 object key (used as the canonical file reference).
-    Key format: {job_id}/{language}_{voice_id}.mp3
+    Upload audio bytes. Uses S3/MinIO when configured, falls back to Redis otherwise.
+    Returns a key string used to retrieve the audio later.
     """
     ext = "mp3" if "mp3" in audio_format else "wav"
     key = f"{job_id}/{language}_{voice_id}.{ext}"
-    content_type = "audio/mpeg" if ext == "mp3" else "audio/wav"
 
+    if not _s3_configured():
+        # Redis fallback — store base64-encoded audio directly in Redis
+        import redis as _redis
+        r = _redis.from_url(settings.redis_url, decode_responses=False)
+        r.set(f"{REDIS_AUDIO_PREFIX}{key}", base64.b64encode(audio_bytes), ex=REDIS_AUDIO_TTL)
+        r.close()
+        logger.info("Stored audio in Redis: %s", key)
+        return f"redis:{key}"
+
+    content_type = "audio/mpeg" if ext == "mp3" else "audio/wav"
     client = _get_client()
     try:
         client.put_object(
@@ -65,6 +81,15 @@ def generate_presigned_url(key: str, expires_in: int = 3600) -> str:
 
 def download_audio(key: str) -> bytes:
     """Download raw bytes for a stored audio file."""
+    if key.startswith("redis:"):
+        import redis as _redis
+        r = _redis.from_url(settings.redis_url, decode_responses=False)
+        data = r.get(f"{REDIS_AUDIO_PREFIX}{key[6:]}")
+        r.close()
+        if not data:
+            raise FileNotFoundError(f"Audio not found in Redis: {key}")
+        return base64.b64decode(data)
+
     client = _get_client()
     response = client.get_object(Bucket=settings.s3_bucket, Key=key)
     return response["Body"].read()
