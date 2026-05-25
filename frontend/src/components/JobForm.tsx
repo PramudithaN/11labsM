@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Card, Button, Select, Input, Space, Alert } from 'antd'
+import { Card, Button, Select, Input, Space, Alert, Divider } from 'antd'
 import { SoundOutlined, ThunderboltOutlined } from '@ant-design/icons'
 import type { Voice } from '../types'
 import { getVoices, createJob } from '../api/client'
@@ -120,6 +120,8 @@ export default function JobForm({ onJobCreated }: Props) {
             />
           </div>
         </div>
+
+        <Divider style={{ margin: '4px 0' }} />
 
         {/* Languages */}
         <div>
