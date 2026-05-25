@@ -1,0 +1,32 @@
+# Environment — never commit secrets
+.env
+*.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+venv/
+.venv/
+env/
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Test output
+tts_output_test.zip
+
+# Alembic (keep migrations, ignore local state)
+alembic/versions/*.pyc
+
+# Docker
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
