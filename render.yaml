@@ -1,8 +1,3 @@
-databases:
-  - name: tts-postgres
-    plan: free
-    databaseName: tts_db
-    user: tts
 
 services:
   # ── Redis ──────────────────────────────────────────────────────
@@ -20,10 +15,6 @@ services:
     plan: free
     healthCheckPath: /health
     envVars:
-      - key: DATABASE_URL
-        fromDatabase:
-          name: tts-postgres
-          property: internalConnectionString
       - key: REDIS_URL
         fromService:
           type: redis
@@ -58,10 +49,6 @@ services:
     plan: free
     startCommand: celery -A app.workers.celery_app worker --loglevel=info --concurrency=2
     envVars:
-      - key: DATABASE_URL
-        fromDatabase:
-          name: tts-postgres
-          property: internalConnectionString
       - key: REDIS_URL
         fromService:
           type: redis

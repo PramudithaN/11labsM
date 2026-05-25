@@ -14,22 +14,6 @@ class Settings(BaseSettings):
     deepl_api_key: str = ""
     google_translate_api_key: str = ""
 
-    # Database
-    database_url: str = "postgresql+asyncpg://user:password@localhost:5432/tts_db"
-
-    @field_validator("database_url", mode="before")
-    @classmethod
-    def _normalise_db_url(cls, v: str) -> str:
-        """Render/Heroku supply postgres:// or postgresql:// — add asyncpg dialect and fix SSL params."""
-        if v.startswith("postgres://"):
-            v = "postgresql+asyncpg://" + v[len("postgres://"):]
-        elif v.startswith("postgresql://"):
-            v = "postgresql+asyncpg://" + v[len("postgresql://"):]
-        # asyncpg uses ?ssl=require; psycopg2-style sslmode= is not understood by asyncpg
-        v = v.replace("sslmode=require", "ssl=require")
-        v = v.replace("sslmode=disable", "ssl=False")
-        return v
-
     # Redis
     redis_url: str = "redis://localhost:6379/0"
 

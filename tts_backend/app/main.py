@@ -7,8 +7,6 @@ from fastapi.responses import JSONResponse
 
 from app.api import jobs, voices
 from app.config import get_settings
-from app.utils.database import init_db
-from app.storage.s3 import ensure_bucket_exists
 
 settings = get_settings()
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s — %(message)s")
@@ -18,9 +16,11 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Starting TTS backend (env=%s)", settings.app_env)
-    await init_db()           # create tables if they don't exist (idempotent)
     if settings.app_env == "development":
+        from app.storage.s3 import ensure_bucket_exists
         ensure_bucket_exists()  # auto-create MinIO bucket in local dev only
+    yield
+    logger.info("Shutting down TTS backend")
     yield
     logger.info("Shutting down TTS backend")
 

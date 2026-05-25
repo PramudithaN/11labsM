@@ -1,6 +1,5 @@
 from pydantic import BaseModel, Field, field_validator
 from typing import List, Optional
-from uuid import UUID
 from datetime import datetime
 from app.models.db_models import JobStatus, AudioStatus
 
@@ -32,7 +31,7 @@ class RenameFileRequest(BaseModel):
 # ── Response schemas ─────────────────────────────────────────────────────────
 
 class AudioFileResponse(BaseModel):
-    id: UUID
+    id: str
     language: str
     voice_id: str
     file_url: Optional[str]
@@ -45,7 +44,7 @@ class AudioFileResponse(BaseModel):
 
 
 class JobResponse(BaseModel):
-    id: UUID
+    id: str
     status: JobStatus
     voice_id: str
     audio_format: str
@@ -57,7 +56,7 @@ class JobResponse(BaseModel):
 
 
 class CreateJobResponse(BaseModel):
-    job_id: UUID
+    job_id: str
     status: JobStatus
     message: str = "Job created and queued for processing"
 
