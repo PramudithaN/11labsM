@@ -32,6 +32,7 @@ class Settings(BaseSettings):
     secret_key: str = "changeme"
     max_text_length: int = 5000
     max_languages_per_job: int = 20
+    cors_origins: str = "http://localhost:3000,http://localhost:3002,http://localhost:3003"
 
     class Config:
         env_file = ".env"

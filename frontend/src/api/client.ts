@@ -1,8 +1,8 @@
 import type { Voice, Job, CreateJobRequest, CreateJobResponse } from '../types'
 
-// In dev the Vite proxy rewrites /api/* → http://localhost:8000/*
-// In Docker  nginx proxies /api/       → http://api:8000/
-const BASE = '/api'
+// In dev: Vite proxy rewrites /api/* → http://localhost:8000/*
+// In production (Vercel): set VITE_API_BASE_URL=https://your-backend.com in Vercel env vars
+const BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? '/api'
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, init)

@@ -17,6 +17,7 @@ services:
       - S3_ACCESS_KEY=minioadmin
       - S3_SECRET_KEY=minioadmin
       - S3_BUCKET=tts-audio
+      - CORS_ORIGINS=http://localhost:3000,http://localhost:3002,http://localhost:3003
     env_file:
       - .env
     depends_on:
