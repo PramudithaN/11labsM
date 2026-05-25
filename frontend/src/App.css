@@ -197,6 +197,38 @@ fieldset {
 }
 .btn-download:hover { opacity: .88; }
 
+/* ── Preview + Select-All buttons ───────────────────────────── */
+.btn-preview {
+  margin-left: auto;
+  padding: 3px 10px;
+  font-size: .78rem;
+  font-weight: 500;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--text);
+  transition: background .15s;
+  white-space: nowrap;
+}
+.btn-preview:hover:not(:disabled) { background: var(--border); }
+.btn-preview:disabled { opacity: .5; cursor: not-allowed; }
+
+.btn-select-all {
+  margin-left: 10px;
+  padding: 2px 9px;
+  font-size: .75rem;
+  font-weight: 500;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--muted);
+  transition: background .15s, color .15s;
+  vertical-align: middle;
+}
+.btn-select-all:hover { background: var(--surface-2); color: var(--text); }
+
 /* ── Error / misc ────────────────────────────────────────────── */
 .error-msg  { color: var(--danger); font-size: .84rem; margin-bottom: 12px; }
 .error-card { border-color: var(--danger); color: var(--danger); font-size: .9rem; }

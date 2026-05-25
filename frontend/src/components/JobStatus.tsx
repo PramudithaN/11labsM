@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import type { Job, JobStatus, AudioStatus } from '../types'
-import { getJob, getDownloadUrl } from '../api/client'
+import { getJob, getDownloadUrl, getAudioUrl } from '../api/client'
 
 const JOB_META: Record<JobStatus, { label: string; color: string; spin?: boolean }> = {
   pending:     { label: 'Pending',     color: '#94a3b8' },
@@ -37,9 +37,36 @@ const DONE_STATUSES: JobStatus[] = ['ready', 'partial', 'failed']
 interface Props { jobId: string }
 
 export default function JobStatus({ jobId }: Props) {
-  const [job, setJob]         = useState<Job | null>(null)
-  const [fetchErr, setErr]    = useState<string | null>(null)
-  const timerRef              = useRef<ReturnType<typeof setInterval> | null>(null)
+  const [job, setJob]           = useState<Job | null>(null)
+  const [fetchErr, setErr]      = useState<string | null>(null)
+  const timerRef                = useRef<ReturnType<typeof setInterval> | null>(null)
+  const audioRef                = useRef<HTMLAudioElement | null>(null)
+  const [playingLang, setPlaying] = useState<string | null>(null)
+  const [loadingLang, setLoading] = useState<string | null>(null)
+
+  const playPreview = async (language: string) => {
+    if (playingLang === language) {
+      audioRef.current?.pause()
+      setPlaying(null)
+      return
+    }
+    setLoading(language)
+    try {
+      const { url } = await getAudioUrl(jobId, language)
+      if (!audioRef.current) audioRef.current = new Audio()
+      const audio = audioRef.current
+      audio.pause()
+      audio.src = url
+      audio.onended = () => setPlaying(null)
+      audio.onerror = () => setPlaying(null)
+      await audio.play()
+      setPlaying(language)
+    } catch {
+      setPlaying(null)
+    } finally {
+      setLoading(null)
+    }
+  }
 
   useEffect(() => {
     const poll = async () => {
@@ -107,6 +134,20 @@ export default function JobStatus({ jobId }: Props) {
                 <span className="audio-status" style={{ color: am.color }}>
                   ● {am.label}
                 </span>
+                {af.status === 'complete' && (
+                  <button
+                    type="button"
+                    className="btn-preview"
+                    disabled={loadingLang === af.language}
+                    onClick={() => playPreview(af.language)}
+                  >
+                    {loadingLang === af.language
+                      ? '…'
+                      : playingLang === af.language
+                      ? '■ Stop'
+                      : '▶ Preview'}
+                  </button>
+                )}
                 {af.error_message && (
                   <span className="af-error" title={af.error_message}>
                     ⚠ {af.error_message.slice(0, 50)}
@@ -123,7 +164,7 @@ export default function JobStatus({ jobId }: Props) {
         <a
           className="btn-download"
           href={getDownloadUrl(job.id)}
-          download={`tts-${job.id.slice(0, 8)}.zip`}
+          download="translated_voices.zip"
         >
           ↓ Download All (ZIP)
         </a>

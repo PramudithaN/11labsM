@@ -133,6 +133,19 @@ export default function JobForm({ onJobCreated }: Props) {
         <legend>
           Target Languages&nbsp;
           <span className="badge">{selectedLangs.length} selected</span>
+          <button
+            type="button"
+            className="btn-select-all"
+            onClick={() =>
+              setSelected(
+                selectedLangs.length === LANGUAGES.length
+                  ? []
+                  : LANGUAGES.map(l => l.code)
+              )
+            }
+          >
+            {selectedLangs.length === LANGUAGES.length ? 'Deselect All' : 'Select All'}
+          </button>
         </legend>
         <div className="lang-grid">
           {LANGUAGES.map(lang => (
