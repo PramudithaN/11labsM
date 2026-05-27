@@ -23,15 +23,15 @@ A full-stack web application that translates text into multiple languages simult
 
 ## Features
 
-- **Multi-language TTS** — Submit text once and generate speech in up to 17 languages in parallel.
-- **Translation providers** — DeepL, Google Translate, or MyMemory (free, no API key required).
-- **ElevenLabs voices** — Pick any voice from your ElevenLabs account; voices are fetched live.
-- **Audio format selection** — MP3 (128 / 192 kbps) or PCM (22.05 / 44.1 kHz).
-- **Real-time progress** — UI polls the backend every 3 seconds and shows per-language status.
-- **In-browser audio preview** — Animated waveform player streams audio directly from the backend.
-- **ZIP download** — Download all completed audio files in one click.
-- **Smart caching** — Identical (text + language + voice + format) combinations are cached for 7 days, skipping redundant ElevenLabs API calls.
-- **Retry logic** — Exponential back-off on ElevenLabs rate limits and network errors (up to 5 retries).
+- **Multi-language TTS** - Submit text once and generate speech in up to 17 languages in parallel.
+- **Translation providers** - DeepL, Google Translate, or MyMemory (free, no API key required).
+- **ElevenLabs voices** - Pick any voice from your ElevenLabs account; voices are fetched live.
+- **Audio format selection** - MP3 (128 / 192 kbps) or PCM (22.05 / 44.1 kHz).
+- **Real-time progress** - UI polls the backend every 3 seconds and shows per-language status.
+- **In-browser audio preview** - Animated waveform player streams audio directly from the backend.
+- **ZIP download** - Download all completed audio files in one click.
+- **Smart caching** - Identical (text + language + voice + format) combinations are cached for 7 days, skipping redundant ElevenLabs API calls.
+- **Retry logic** - Exponential back-off on ElevenLabs rate limits and network errors (up to 5 retries).
 
 ---
 
