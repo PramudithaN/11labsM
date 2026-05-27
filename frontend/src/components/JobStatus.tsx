@@ -151,9 +151,12 @@ export default function JobStatus({ jobId, onReset }: Props) {
     </>
   )
 
-  const isDone     = DONE.includes(job.status)
-  const hasAudio   = job.audio_files.some(af => af.status === 'complete')
-  const isSpinning = job.status === 'translating' || job.status === 'processing'
+  const isDone          = DONE.includes(job.status)
+  const hasAudio        = job.audio_files.some(af => af.status === 'complete')
+  const allAudioFailed  = job.audio_files.length > 0 &&
+    job.audio_files.every(af => af.status === 'failed')
+  const showReset       = isDone || allAudioFailed
+  const isSpinning      = job.status === 'translating' || job.status === 'processing'
 
   return (
     <>
@@ -193,24 +196,26 @@ export default function JobStatus({ jobId, onReset }: Props) {
         </div>
 
         {/* ── Download + Reset ── */}
-        {isDone && hasAudio && (
+        {(isDone || showReset) && (
           <>
             <Divider style={{ margin: '12px 0' }} />
             <div style={{ display: 'flex', gap: 8 }}>
-              <a href={getDownloadUrl(job.id)} download="translated_voices.zip" style={{ flex: 1 }}>
-                <Button
-                  type="primary"
-                  icon={<DownloadOutlined />}
-                  block
-                  style={{ background: '#15803d', borderColor: '#15803d', color: '#fff', fontWeight: 600 }}
-                >
-                  Download All (ZIP)
-                </Button>
-              </a>
+              {hasAudio && (
+                <a href={getDownloadUrl(job.id)} download="translated_voices.zip" style={{ flex: 1 }}>
+                  <Button
+                    type="primary"
+                    icon={<DownloadOutlined />}
+                    block
+                    style={{ background: '#15803d', borderColor: '#15803d', color: '#fff', fontWeight: 600 }}
+                  >
+                    Download All (ZIP)
+                  </Button>
+                </a>
+              )}
               <Button
                 icon={<ReloadOutlined />}
                 onClick={onReset}
-                style={{ fontWeight: 600 }}
+                style={{ fontWeight: 600, flex: hasAudio ? 'none' : 1 }}
                 title="Start over"
               >
                 Reset
