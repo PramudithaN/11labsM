@@ -103,7 +103,9 @@ export default function JobStatus({ jobId, onReset }: Props) {
           }
         }
 
-        if (DONE.includes(d.status) && timerRef.current) clearInterval(timerRef.current)
+        const allAudioTerminal = d.audio_files.length > 0 &&
+          d.audio_files.every(af => af.status === 'complete' || af.status === 'failed')
+        if ((DONE.includes(d.status) || allAudioTerminal) && timerRef.current) clearInterval(timerRef.current)
       } catch (e) {
         setErr(e instanceof Error ? e.message : 'Unknown error')
         if (timerRef.current) clearInterval(timerRef.current)
