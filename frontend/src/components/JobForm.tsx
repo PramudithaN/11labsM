@@ -152,6 +152,9 @@ export default function JobForm({ onJobCreated }: Props) {
                 filterOption={(input, option) =>
                   String(option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                 }
+                optionRender={option => (
+                  <span title={String(option.label)}>{option.label}</span>
+                )}
                 options={voices.length
                   ? voices.map(v => ({ value: v.voice_id, label: v.name }))
                   : [{ value: voiceId, label: VOICE_NAMES[voiceId] ?? voiceId }]
@@ -176,6 +179,9 @@ export default function JobForm({ onJobCreated }: Props) {
               onChange={setModelId}
               loading={loading}
               style={{ width: '100%' }}
+              optionRender={option => (
+                <span title={String(option.label)}>{option.label}</span>
+              )}
               options={models.length
                 ? models.map(m => ({ value: m.model_id, label: m.name }))
                 : [{ value: modelId, label: MODEL_NAMES[modelId] ?? modelId }]
