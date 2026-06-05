@@ -30,23 +30,23 @@ const MODEL_NAMES: Record<string, string> = {
 }
 
 const LANGUAGES = [
-  { code: 'cs', name: 'Czech',      flag: '🇨🇿' },
-  { code: 'da', name: 'Danish',     flag: '🇩🇰' },
-  { code: 'de', name: 'German',     flag: '🇩🇪' },
-  { code: 'es', name: 'Spanish',    flag: '🇪🇸' },
-  { code: 'gr', name: 'Greek',      flag: '🇬🇷' },
-  { code: 'hu', name: 'Hungarian',  flag: '🇭🇺' },
-  { code: 'hr', name: 'Croatian',   flag: '🇭🇷' },
-  { code: 'ru', name: 'Russian',    flag: '🇷🇺' },
-  { code: 'ro', name: 'Romanian',   flag: '🇷🇴' },
-  { code: 'nl', name: 'Dutch',      flag: '🇳🇱' },
-  { code: 'no', name: 'Norwegian',  flag: '🇳🇴' },
-  { code: 'fi', name: 'Finnish',    flag: '🇫🇮' },
-  { code: 'fr', name: 'French',     flag: '🇫🇷' },
-  { code: 'sv', name: 'Swedish',    flag: '🇸🇪' },
-  { code: 'pl', name: 'Polish',     flag: '🇵🇱' },
-  { code: 'pt', name: 'Portuguese', flag: '🇵🇹' },
-  { code: 'it', name: 'Italian',    flag: '🇮🇹' },
+  { code: 'cs', name: 'Czech',      cc: 'cz' },
+  { code: 'da', name: 'Danish',     cc: 'dk' },
+  { code: 'de', name: 'German',     cc: 'de' },
+  { code: 'es', name: 'Spanish',    cc: 'es' },
+  { code: 'gr', name: 'Greek',      cc: 'gr' },
+  { code: 'hu', name: 'Hungarian',  cc: 'hu' },
+  { code: 'hr', name: 'Croatian',   cc: 'hr' },
+  { code: 'ru', name: 'Russian',    cc: 'ru' },
+  { code: 'ro', name: 'Romanian',   cc: 'ro' },
+  { code: 'nl', name: 'Dutch',      cc: 'nl' },
+  { code: 'no', name: 'Norwegian',  cc: 'no' },
+  { code: 'fi', name: 'Finnish',    cc: 'fi' },
+  { code: 'fr', name: 'French',     cc: 'fr' },
+  { code: 'sv', name: 'Swedish',    cc: 'se' },
+  { code: 'pl', name: 'Polish',     cc: 'pl' },
+  { code: 'pt', name: 'Portuguese', cc: 'pt' },
+  { code: 'it', name: 'Italian',    cc: 'it' },
 ]
 
 const AUDIO_FORMATS = [
@@ -212,7 +212,13 @@ export default function JobForm({ onJobCreated }: Props) {
                 className={`lang-chip${selected.includes(lang.code) ? ' selected' : ''}`}
                 onClick={() => toggle(lang.code)}
               >
-                <span>{lang.flag}</span>
+                <img
+                    src={`https://flagcdn.com/20x15/${lang.cc}.png`}
+                    width={20}
+                    height={15}
+                    alt={lang.name}
+                    style={{ borderRadius: 2, flexShrink: 0 }}
+                  />
                 <span>{lang.name}</span>
               </div>
             ))}
