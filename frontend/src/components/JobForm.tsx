@@ -137,41 +137,28 @@ export default function JobForm({ onJobCreated }: Props) {
           />
         </div>
 
-        {/* Voice + Model + Format */}
+        {/* Voice + Model + Format — all full-width to prevent overflow on long names */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {/* Row 1: Voice + Audio Format */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            <div>
-              <label className="field-label">Voice</label>
-              <Select
-                value={voiceId}
-                onChange={setVoiceId}
-                loading={loading}
-                style={{ width: '100%' }}
-                showSearch
-                filterOption={(input, option) =>
-                  String(option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                }
-                optionRender={option => (
-                  <span title={String(option.label)}>{option.label}</span>
-                )}
-                options={voices.length
-                  ? voices.map(v => ({ value: v.voice_id, label: v.name }))
-                  : [{ value: voiceId, label: VOICE_NAMES[voiceId] ?? voiceId }]
-                }
-              />
-            </div>
-            <div>
-              <label className="field-label">Audio Format</label>
-              <Select
-                value={format}
-                onChange={setFormat}
-                style={{ width: '100%' }}
-                options={AUDIO_FORMATS.map(f => ({ value: f.value, label: f.label }))}
-              />
-            </div>
+          <div>
+            <label className="field-label">Voice</label>
+            <Select
+              value={voiceId}
+              onChange={setVoiceId}
+              loading={loading}
+              style={{ width: '100%' }}
+              showSearch
+              filterOption={(input, option) =>
+                String(option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+              }
+              optionRender={option => (
+                <span title={String(option.label)}>{option.label}</span>
+              )}
+              options={voices.length
+                ? voices.map(v => ({ value: v.voice_id, label: v.name }))
+                : [{ value: voiceId, label: VOICE_NAMES[voiceId] ?? voiceId }]
+              }
+            />
           </div>
-          {/* Row 2: Model (full width – names are long) */}
           <div>
             <label className="field-label">Model</label>
             <Select
@@ -186,6 +173,15 @@ export default function JobForm({ onJobCreated }: Props) {
                 ? models.map(m => ({ value: m.model_id, label: m.name }))
                 : [{ value: modelId, label: MODEL_NAMES[modelId] ?? modelId }]
               }
+            />
+          </div>
+          <div>
+            <label className="field-label">Audio Format</label>
+            <Select
+              value={format}
+              onChange={setFormat}
+              style={{ width: '100%' }}
+              options={AUDIO_FORMATS.map(f => ({ value: f.value, label: f.label }))}
             />
           </div>
         </div>
