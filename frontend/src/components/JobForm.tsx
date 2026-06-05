@@ -6,6 +6,29 @@ import { getVoices, getModels, createJob } from '../api/client'
 
 const { TextArea } = Input
 
+// Friendly labels for the built-in defaults (shown when the API is unreachable)
+const VOICE_NAMES: Record<string, string> = {
+  '21m00Tcm4TlvDq8ikWAM': 'Rachel',
+  'AZnzlk1XvdvUeBnXmlld': 'Domi',
+  'EXAVITQu4vr4xnSDxMaL': 'Bella',
+  'ErXwobaYiN019PkySvjV': 'Antoni',
+  'MF3mGyEYCl7XYWbV9V6O': 'Elli',
+  'TxGEqnHWrfWFTfGW9XjX': 'Josh',
+  'VR6AewLTigWG4xSOukaG': 'Arnold',
+  'pNInz6obpgDQGcFmaJgB': 'Adam',
+  'yoZ06aMxZJJ28mfd3POQ': 'Sam',
+}
+
+const MODEL_NAMES: Record<string, string> = {
+  'eleven_multilingual_v2':  'Eleven Multilingual v2',
+  'eleven_multilingual_v1':  'Eleven Multilingual v1',
+  'eleven_monolingual_v1':   'Eleven English v1',
+  'eleven_turbo_v2':         'Eleven Turbo v2',
+  'eleven_turbo_v2_5':       'Eleven Turbo v2.5',
+  'eleven_flash_v2':         'Eleven Flash v2',
+  'eleven_flash_v2_5':       'Eleven Flash v2.5',
+}
+
 const LANGUAGES = [
   { code: 'cs', name: 'Czech',      flag: '🇨🇿' },
   { code: 'da', name: 'Danish',     flag: '🇩🇰' },
@@ -48,6 +71,7 @@ export default function JobForm({ onJobCreated }: Props) {
   const [loading, setLoading]   = useState(true)
   const [submitting, setSub]    = useState(false)
   const [error, setError]       = useState<string | null>(null)
+  const [apiWarn, setApiWarn]   = useState(false)
 
   useEffect(() => {
     Promise.all([getVoices(), getModels()])
@@ -57,7 +81,7 @@ export default function JobForm({ onJobCreated }: Props) {
         setModels(m)
         if (m.length) setModelId(m[0].model_id)
       })
-      .catch(() => {})
+      .catch(() => { setApiWarn(true) })
       .finally(() => setLoading(false))
   }, [])
 
@@ -89,6 +113,17 @@ export default function JobForm({ onJobCreated }: Props) {
     >
       <Space direction="vertical" size={18} style={{ width: '100%' }}>
 
+        {apiWarn && (
+          <Alert
+            type="warning"
+            showIcon
+            closable
+            onClose={() => setApiWarn(false)}
+            message="Backend unavailable"
+            description="Could not load voices and models from the server. Using built-in defaults the form will still work once the backend is reachable."
+          />
+        )}
+
         {/* Source text */}
         <div>
           <label className="field-label">Source Text</label>
@@ -103,21 +138,38 @@ export default function JobForm({ onJobCreated }: Props) {
         </div>
 
         {/* Voice + Model + Format */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
-          <div style={{ minWidth: 0 }}>
-            <label className="field-label">Voice</label>
-            <Select
-              value={voiceId}
-              onChange={setVoiceId}
-              loading={loading}
-              style={{ width: '100%' }}
-              options={voices.length
-                ? voices.map(v => ({ value: v.voice_id, label: v.name }))
-                : [{ value: voiceId, label: voiceId }]
-              }
-            />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {/* Row 1: Voice + Audio Format */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div>
+              <label className="field-label">Voice</label>
+              <Select
+                value={voiceId}
+                onChange={setVoiceId}
+                loading={loading}
+                style={{ width: '100%' }}
+                showSearch
+                filterOption={(input, option) =>
+                  String(option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                }
+                options={voices.length
+                  ? voices.map(v => ({ value: v.voice_id, label: v.name }))
+                  : [{ value: voiceId, label: VOICE_NAMES[voiceId] ?? voiceId }]
+                }
+              />
+            </div>
+            <div>
+              <label className="field-label">Audio Format</label>
+              <Select
+                value={format}
+                onChange={setFormat}
+                style={{ width: '100%' }}
+                options={AUDIO_FORMATS.map(f => ({ value: f.value, label: f.label }))}
+              />
+            </div>
           </div>
-          <div style={{ minWidth: 0 }}>
+          {/* Row 2: Model (full width – names are long) */}
+          <div>
             <label className="field-label">Model</label>
             <Select
               value={modelId}
@@ -126,17 +178,8 @@ export default function JobForm({ onJobCreated }: Props) {
               style={{ width: '100%' }}
               options={models.length
                 ? models.map(m => ({ value: m.model_id, label: m.name }))
-                : [{ value: modelId, label: modelId }]
+                : [{ value: modelId, label: MODEL_NAMES[modelId] ?? modelId }]
               }
-            />
-          </div>
-          <div style={{ minWidth: 0 }}>
-            <label className="field-label">Audio Format</label>
-            <Select
-              value={format}
-              onChange={setFormat}
-              style={{ width: '100%' }}
-              options={AUDIO_FORMATS.map(f => ({ value: f.value, label: f.label }))}
             />
           </div>
         </div>
