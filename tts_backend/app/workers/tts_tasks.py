@@ -24,6 +24,7 @@ def generate_language_audio(
     language: str,
     voice_id: str,
     audio_format: str,
+    model_id: str = "eleven_multilingual_v2",
 ):
     import asyncio
 
@@ -40,16 +41,16 @@ def generate_language_audio(
             return
 
         # Cache check — skip ElevenLabs call if already generated
-        cached_key = get_cached_key(translated_text, language, voice_id, audio_format)
+        cached_key = get_cached_key(translated_text, language, voice_id, audio_format, model_id)
         if cached_key:
             logger.info("Cache HIT for job=%s lang=%s", job_id, language)
             sync_update_audio_file(audio_file_id, status="complete", file_url=cached_key)
             sync_maybe_complete_job(job_id)
             return
 
-        audio_bytes = generate_audio_sync(translated_text, voice_id, audio_format)
+        audio_bytes = generate_audio_sync(translated_text, voice_id, audio_format, model_id)
         s3_key = upload_audio(job_id, language, voice_id, audio_bytes, audio_format)
-        set_cached_key(translated_text, language, voice_id, audio_format, s3_key)
+        set_cached_key(translated_text, language, voice_id, audio_format, model_id, s3_key)
 
         sync_update_audio_file(audio_file_id, status="complete", file_url=s3_key)
         logger.info("Completed TTS: job=%s lang=%s key=%s", job_id, language, s3_key)

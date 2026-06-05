@@ -5,7 +5,7 @@ from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api import jobs, voices
+from app.api import jobs, voices, models
 from app.config import get_settings
 
 settings = get_settings()
@@ -41,6 +41,7 @@ app.add_middleware(
 # ── Routers ───────────────────────────────────────────────────────────────────
 app.include_router(jobs.router)
 app.include_router(voices.router)
+app.include_router(models.router)
 
 
 # ── Global exception handlers ─────────────────────────────────────────────────

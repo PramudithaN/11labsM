@@ -5,6 +5,14 @@ export interface Voice {
   labels: Record<string, string>
 }
 
+export interface Model {
+  model_id: string
+  name: string
+  description: string | null
+  can_do_text_to_speech: boolean
+  languages: unknown[]
+}
+
 export type AudioStatus = 'pending' | 'generating' | 'complete' | 'failed'
 export type JobStatus =
   | 'pending'
@@ -39,6 +47,7 @@ export interface CreateJobRequest {
   text: string
   languages: string[]
   voice_id: string
+  model_id: string
   audio_format: string
 }
 

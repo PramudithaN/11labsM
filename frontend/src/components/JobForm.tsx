@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Card, Button, Select, Input, Space, Alert, Divider } from 'antd'
 import { SoundOutlined, ThunderboltOutlined } from '@ant-design/icons'
-import type { Voice } from '../types'
-import { getVoices, createJob } from '../api/client'
+import type { Voice, Model } from '../types'
+import { getVoices, getModels, createJob } from '../api/client'
 
 const { TextArea } = Input
 
@@ -40,16 +40,23 @@ interface Props {
 export default function JobForm({ onJobCreated }: Props) {
   const [text, setText]      = useState('')
   const [voiceId, setVoiceId]   = useState('21m00Tcm4TlvDq8ikWAM')
+  const [modelId, setModelId]   = useState('eleven_multilingual_v2')
   const [selected, setSelected] = useState<string[]>(['fr'])
   const [format, setFormat]     = useState('mp3_44100_128')
   const [voices, setVoices]     = useState<Voice[]>([])
+  const [models, setModels]     = useState<Model[]>([])
   const [loading, setLoading]   = useState(true)
   const [submitting, setSub]    = useState(false)
   const [error, setError]       = useState<string | null>(null)
 
   useEffect(() => {
-    getVoices()
-      .then(v => { setVoices(v); if (v.length) setVoiceId(v[0].voice_id) })
+    Promise.all([getVoices(), getModels()])
+      .then(([v, m]) => {
+        setVoices(v)
+        if (v.length) setVoiceId(v[0].voice_id)
+        setModels(m)
+        if (m.length) setModelId(m[0].model_id)
+      })
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [])
@@ -64,7 +71,7 @@ export default function JobForm({ onJobCreated }: Props) {
     if (!text.trim() || selected.length === 0) return
     setSub(true); setError(null)
     try {
-      const res = await createJob({ text, languages: selected, voice_id: voiceId, audio_format: format })
+      const res = await createJob({ text, languages: selected, voice_id: voiceId, model_id: modelId, audio_format: format })
       onJobCreated(res.job_id)
       setText('')
     } catch (e) {
@@ -95,8 +102,8 @@ export default function JobForm({ onJobCreated }: Props) {
           />
         </div>
 
-        {/* Voice + Format */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+        {/* Voice + Model + Format */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
           <div style={{ minWidth: 0 }}>
             <label className="field-label">Voice</label>
             <Select
@@ -107,6 +114,19 @@ export default function JobForm({ onJobCreated }: Props) {
               options={voices.length
                 ? voices.map(v => ({ value: v.voice_id, label: v.name }))
                 : [{ value: voiceId, label: voiceId }]
+              }
+            />
+          </div>
+          <div style={{ minWidth: 0 }}>
+            <label className="field-label">Model</label>
+            <Select
+              value={modelId}
+              onChange={setModelId}
+              loading={loading}
+              style={{ width: '100%' }}
+              options={models.length
+                ? models.map(m => ({ value: m.model_id, label: m.name }))
+                : [{ value: modelId, label: modelId }]
               }
             />
           </div>

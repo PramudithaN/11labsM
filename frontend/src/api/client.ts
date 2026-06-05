@@ -1,4 +1,4 @@
-import type { Voice, Job, CreateJobRequest, CreateJobResponse } from '../types'
+import type { Voice, Model, Job, CreateJobRequest, CreateJobResponse } from '../types'
 
 // In dev: Vite proxy rewrites /api/* → http://localhost:8000/*
 // In production (Vercel): set VITE_API_BASE_URL=https://your-backend.com in Vercel env vars
@@ -15,6 +15,9 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 export const getVoices = (): Promise<Voice[]> =>
   request('/voices/')
+
+export const getModels = (): Promise<Model[]> =>
+  request('/models/')
 
 export const createJob = (body: CreateJobRequest): Promise<CreateJobResponse> =>
   request('/jobs/create', {

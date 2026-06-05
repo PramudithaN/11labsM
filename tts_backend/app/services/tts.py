@@ -31,7 +31,7 @@ def _raise_for_status(resp: httpx.Response):
     retry=retry_if_exception_type((RateLimitError, httpx.TimeoutException, httpx.NetworkError)),
     before_sleep=before_sleep_log(logger, logging.WARNING),
 )
-async def generate_audio(text: str, voice_id: str, audio_format: str = "mp3_44100_128") -> bytes:
+async def generate_audio(text: str, voice_id: str, audio_format: str = "mp3_44100_128", model_id: str | None = None) -> bytes:
     """
     Call ElevenLabs TTS API and return raw audio bytes.
     Retries up to 5 times with exponential backoff on rate limits or network errors.
@@ -44,7 +44,7 @@ async def generate_audio(text: str, voice_id: str, audio_format: str = "mp3_4410
     }
     payload = {
         "text": text,
-        "model_id": settings.elevenlabs_model,
+        "model_id": model_id or settings.elevenlabs_model,
         "output_format": audio_format,
     }
 
@@ -60,7 +60,7 @@ async def generate_audio(text: str, voice_id: str, audio_format: str = "mp3_4410
     retry=retry_if_exception_type((RateLimitError, httpx.TimeoutException, httpx.NetworkError)),
     before_sleep=before_sleep_log(logger, logging.WARNING),
 )
-def generate_audio_sync(text: str, voice_id: str, audio_format: str = "mp3_44100_128") -> bytes:
+def generate_audio_sync(text: str, voice_id: str, audio_format: str = "mp3_44100_128", model_id: str | None = None) -> bytes:
     """
     Synchronous TTS call for Celery workers — identical retry logic to the async version.
     Avoids asyncio.run() inside worker processes.
@@ -73,7 +73,7 @@ def generate_audio_sync(text: str, voice_id: str, audio_format: str = "mp3_44100
     }
     payload = {
         "text": text,
-        "model_id": settings.elevenlabs_model,
+        "model_id": model_id or settings.elevenlabs_model,
         "output_format": audio_format,
     }
     with httpx.Client(timeout=60) as client:
@@ -92,3 +92,17 @@ async def list_voices() -> list[dict]:
         )
         resp.raise_for_status()
         return resp.json().get("voices", [])
+
+
+async def list_models() -> list[dict]:
+    """Fetch available TTS models from ElevenLabs."""
+    url = f"{settings.elevenlabs_base_url}/models"
+    async with httpx.AsyncClient(timeout=15) as client:
+        resp = await client.get(
+            url,
+            headers={"xi-api-key": settings.elevenlabs_api_key},
+        )
+        resp.raise_for_status()
+        all_models = resp.json()
+        # Only return models that support text-to-speech
+        return [m for m in all_models if m.get("can_do_text_to_speech", False)]

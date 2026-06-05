@@ -10,6 +10,7 @@ class CreateJobRequest(BaseModel):
     text: str = Field(..., min_length=1, max_length=5000, description="Source text to synthesise")
     languages: List[str] = Field(..., min_length=1, description="Target language codes, e.g. ['en','fr','es']")
     voice_id: str = Field(..., description="ElevenLabs voice ID")
+    model_id: str = Field(default="eleven_multilingual_v2", description="ElevenLabs model ID")
     audio_format: str = Field(default="mp3_44100_128", description="ElevenLabs output format")
 
     @field_validator("languages")
@@ -66,3 +67,11 @@ class VoiceResponse(BaseModel):
     name: str
     preview_url: Optional[str]
     labels: dict = {}
+
+
+class ModelResponse(BaseModel):
+    model_id: str
+    name: str
+    description: Optional[str] = None
+    can_do_text_to_speech: bool = True
+    languages: list = []

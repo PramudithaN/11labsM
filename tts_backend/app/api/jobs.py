@@ -59,6 +59,7 @@ async def create_job_endpoint(payload: CreateJobRequest):
             source_text=payload.text,
             language=af["language"],
             voice_id=payload.voice_id,
+            model_id=payload.model_id,
             audio_format=payload.audio_format,
         )
 
