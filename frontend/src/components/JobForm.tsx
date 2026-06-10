@@ -58,9 +58,10 @@ const AUDIO_FORMATS = [
 
 interface Props {
   onJobCreated: (jobId: string) => void
+  onReady?: () => void
 }
 
-export default function JobForm({ onJobCreated }: Props) {
+export default function JobForm({ onJobCreated, onReady }: Props) {
   const [text, setText]      = useState('')
   const [voiceId, setVoiceId]   = useState('21m00Tcm4TlvDq8ikWAM')
   const [modelId, setModelId]   = useState('eleven_multilingual_v2')
@@ -82,7 +83,7 @@ export default function JobForm({ onJobCreated }: Props) {
         if (m.length) setModelId(m[0].model_id)
       })
       .catch(() => { setApiWarn(true) })
-      .finally(() => setLoading(false))
+      .finally(() => { setLoading(false); onReady?.() })
   }, [])
 
   const toggle = (code: string) =>

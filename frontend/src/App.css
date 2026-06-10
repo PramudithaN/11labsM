@@ -248,6 +248,33 @@ body {
 
 /* ── Antd token overrides (applied globally) ─────────────────── */
 .ant-card { border-radius: 12px !important; }
+
+/* ── App loading overlay ─────────────────────────────────────── */
+.app-loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeInOverlay .25s ease;
+}
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.app-loading-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+.app-loading-text {
+  font-size: .9rem;
+  color: #94a3b8;
+  letter-spacing: .02em;
+}
 .ant-card .ant-card-head { border-bottom: 1px solid #f1f5f9; min-height: 48px; }
 .ant-card .ant-card-head-title { font-size: .9rem; font-weight: 600; }
 /* Force white text on dark buttons regardless of antd token */

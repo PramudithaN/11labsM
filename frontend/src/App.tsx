@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ConfigProvider } from 'antd'
+import { ConfigProvider, Spin } from 'antd'
 import JobForm from './components/JobForm'
 import JobStatus from './components/JobStatus'
 import './App.css'
@@ -7,6 +7,7 @@ import './App.css'
 export default function App() {
   const [jobs, setJobs] = useState<string[]>([])
   const [formKey, setFormKey] = useState(0)
+  const [appLoading, setAppLoading] = useState(true)
 
   const handleReset = () => {
     setJobs([])
@@ -14,6 +15,15 @@ export default function App() {
   }
 
   return (
+    <>
+    {appLoading && (
+      <div className="app-loading-overlay">
+        <div className="app-loading-box">
+          <Spin size="large" />
+          <p className="app-loading-text">Loading ElevenLabs voices &amp; models…</p>
+        </div>
+      </div>
+    )}
     <ConfigProvider
       theme={{
         token: {
@@ -43,6 +53,7 @@ export default function App() {
             <JobForm
               key={formKey}
               onJobCreated={id => setJobs(prev => [id, ...prev])}
+              onReady={() => setAppLoading(false)}
             />
           </aside>
           <section className="right-col">
@@ -59,5 +70,6 @@ export default function App() {
         </main>
       </div>
     </ConfigProvider>
+    </>
   )
 }
