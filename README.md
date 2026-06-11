@@ -1,6 +1,18 @@
 # 11LabsM - Neural Voice Synthesizer & Translator
+![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Typescript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
+![CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![HTML](https://img.shields.io/badge/html5-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white)
 
 A full-stack web application that translates text into multiple languages simultaneously and generates high-quality text-to-speech audio for each using the [ElevenLabs](https://elevenlabs.io/) API. Jobs are processed asynchronously in the background; the UI polls for progress and lets users play previews or download a ZIP of all generated audio files.
+
+---
+
+## 📸 Preview
+
+**Hero**
+![Hero](public/Images/11labsM.jpeg)
 
 ---
 

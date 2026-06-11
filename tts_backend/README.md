@@ -1,9 +1,4 @@
 # 11LabsM_Translater — Backend
-![Python](https://img.shields.io/badge/Javascript-f1e05a?style=for-the-badge&logo=js&logoColor=f1e05a)
-![Typescript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
-![CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
-![HTML](https://img.shields.io/badge/html5-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white)
-![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
 
 FastAPI + Celery + Redis + PostgreSQL + S3/MinIO + ElevenLabs
 
