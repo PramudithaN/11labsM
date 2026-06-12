@@ -12,7 +12,7 @@ A full-stack web application that translates text into multiple languages simult
 ## 📸 Preview
 
 **Hero**
-![Hero](public/Images/labsm.jpeg)
+![Hero](frontend/public/Images/labsm.jpeg)
 
 ---
 
